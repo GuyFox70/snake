@@ -1,0 +1,21 @@
+.start__wrap {
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.1);
+
+    position: absolute;
+    top: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.start__button {
+    font-size: 18px;
+    letter-spacing: 2px;
+}
+
+.hide {
+    display: none;
+}
