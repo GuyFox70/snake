@@ -19,3 +19,19 @@
 .hide {
     display: none;
 }
+
+.field {
+    height: 97vh;
+    border: 1px solid black;
+    position: relative;
+}
+
+.square {
+    width: 7px;
+    height: 7px;
+    background: rgb(0,0,0);
+    border: 1px solid black;
+    border-radius: 50%;
+
+    position: absolute;
+}
