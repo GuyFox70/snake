@@ -6,6 +6,7 @@
 
            this._minus = -10;
            this._plus = 10;
+           this.dir;
 
            this.pointsTop = [];
            this.pointsLeft = [];
@@ -17,89 +18,115 @@
             this._start.getButton().addEventListener('click', () => {
                 this._start.getWrap().classList.add('hide');
 
-                let pointLeft = parseInt(this._snake.getLastElementArray().style.left);
-                        this.addPoint(this.pointsLeft, pointLeft);
-
-                let pointTop = parseInt(this._snake.getLastElementArray().style.top);
-                    this.addPoint(this.pointsTop, pointTop);
+                this.addPoint(this.pointsLeft, parseInt(this._snake.getLastElementArray().style.left));
+            
+                this.addPoint(this.pointsTop, parseInt(this._snake.getLastElementArray().style.top));
 
                 this.id = setInterval(() => {
 
                     this._forward = new Forward(this._snake.getSquares(), this._plus);
 
                 }, 250);
-            });
 
-            document.documentElement.addEventListener('keydown', (event) => {
-                let code = event.keyCode;
+                document.documentElement.addEventListener('keydown', (event) => {
+                    let code = event.keyCode;
+    
+                    if (code == 37) {
+    
+                        clearInterval(this.id);
+    
+                        let pointTop = parseInt(this._snake.getLastElementArray().style.top);
 
-                if (code == 37) {
-
-                    clearInterval(this.id);
-
-                    let pointTop = parseInt(this._snake.getLastElementArray().style.top);
-                    // let flag = this.compareTwoPoint(pointTop);
-
-                    this.id = setInterval(() => {
-
-                        new Left(this._snake.getSquares(), pointTop, this._minus, this._plus);
-
-                    }, 250);
-
-                } else if (code == 38) {
-
-                    clearInterval(this.id);
-
-                    let pointLeft = parseInt(this._snake.getLastElementArray().style.left);
-                        this.addPoint(this.pointsLeft, pointLeft);
-
-                    let flag = this.findOutLeftOrRightForUp(this.pointsLeft);
-
-                    this.id = setInterval(() => {
-                        new Up(this._snake.getSquares(), pointLeft, this._minus, this._plus, flag);
-                    }, 250);
-
-                } else if (code == 39) {
-
-                    clearInterval(this.id);
-
-                    let pointTop = parseInt(this._snake.getLastElementArray().style.top);
                         this.addPoint(this.pointsTop, pointTop);
-                    
-                    let flag = this.findOutUpOrDownForRight(this.pointsTop);
 
-                    this.id = setInterval(() => {
+                        this.dir = 'left';
 
-                        new Right(this._snake.getSquares(), pointTop, this._minus, this._plus, flag);
-                    }, 250);
+                        let flag = this.moveForLeft(this.pointsTop);
+    
+                        this.id = setInterval(() => {
+    
+                            new Left(this._snake.getSquares(), pointTop, this._minus, this._plus, flag);
+    
+                        }, 250);
+    
+                    } else if (code == 38) {
+    
+                        clearInterval(this.id);
+    
+                        let pointLeft = parseInt(this._snake.getLastElementArray().style.left);
 
-
-                } else if (code == 40) {
-
-                    clearInterval(this.id);
-
-                    let pointLeft = parseInt(this._snake.getLastElementArray().style.left);
                         this.addPoint(this.pointsLeft, pointLeft);
-                    let flag = this.findOutLeftOrRightForDown(this.pointsLeft);
+    
+                        let flag = this. moveForUp(this.pointsLeft);
+    
+                        this.id = setInterval(() => {
+    
+                            new Up(this._snake.getSquares(), pointLeft, this._minus, this._plus, flag);
+    
+                        }, 250);
+    
+                    } else if (code == 39) {
+    
+                        clearInterval(this.id);
+    
+                        let pointTop = parseInt(this._snake.getLastElementArray().style.top);
 
-                    this.id = setInterval(() => {
-                        new Down(this._snake.getSquares(), pointLeft, this._minus, this._plus, flag);
-                    }, 250);
+                        this.addPoint(this.pointsTop, pointTop);
 
-                }
+                        this.dir = 'right';
+                        
+                        let flag = this.moveForRight(this.pointsTop, this.dir);
+    
+                        this.id = setInterval(() => {
+    
+                            new Right(this._snake.getSquares(), pointTop, this._minus, this._plus, flag);
+    
+                        }, 250);
+    
+    
+                    } else if (code == 40) {
+    
+                        clearInterval(this.id);
+    
+                        let pointLeft = parseInt(this._snake.getLastElementArray().style.left);
+
+                        this.addPoint(this.pointsLeft, pointLeft);
+
+                        let flag = this.moveForDown(this.pointsLeft);
+    
+                        this.id = setInterval(() => {
+    
+                            new Down(this._snake.getSquares(), pointLeft, this._minus, this._plus, flag);
+    
+                        }, 250);
+    
+                    }
+                });
             });
+
         }
 
         addPoint(arr, point) {
             arr.push(point);
-        }
-
-        findOutUpOrDownForRight(arr) {
 
             if (arr.length > 2) {
                 arr.shift();
             }
-            console.log(arr);
+        }
+
+        moveForRight(arr, dir) {
+
+            if (arr[0] < arr[1] && dir == 'right') {
+                return true;
+            } else if (arr[0] > arr[1] && dir == 'right') {
+                return false;
+            } else if (arr[0] < arr[1] && dir == 'left') {
+                return false;
+            }
+        }
+
+        moveForLeft(arr) {
+
             if (arr[0] < arr[1]) {
                 return true;
             } else {
@@ -107,11 +134,7 @@
             }
         }
 
-        findOutLeftOrRightForDown(arr) {
-
-            if (arr.length > 2) {
-                arr.shift();
-            }
+        moveForDown(arr) {
             
             if (arr[0] < arr[1] && arr.length > 1) {
                 return true;
@@ -120,11 +143,7 @@
             }
         }
 
-        findOutLeftOrRightForUp(arr) {
-
-            if (arr.length > 2) {
-                arr.shift();
-            }
+        moveForUp(arr) {
 
             if (arr[0] < arr[1] && arr.length > 1) {
                 return false;
@@ -212,16 +231,19 @@
     }
 
     class Left {
-        constructor(elems, pointTop, minus, plus) {
+        constructor(elems, pointTop, minus, plus, flag) {
             this.elems = elems;
             this.pointTop = pointTop;
+
             this.minus = minus;
             this.plus = plus;
+
+            flag ? this.step = this.plus : this.step = this.minus;
 
             for (let i = this.elems.length - 1; i >= 0; i--) {
 
                 if (parseInt(this.elems[i].style.top) != this.pointTop) {
-                    this.elems[i].style.top = parseInt(this.elems[i].style.top) + this.plus + 'px';
+                    this.elems[i].style.top = parseInt(this.elems[i].style.top) + this.step + 'px';
                 } else {
                     this.elems[i].style.left = parseInt(this.elems[i].style.left) + this.minus + 'px';
                 }
