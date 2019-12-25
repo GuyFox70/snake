@@ -6,10 +6,10 @@
 
            this._minus = -10;
            this._plus = 10;
-           this.dir;
+           this._dir;
 
-           this.pointsTop = [];
-           this.pointsLeft = [];
+           this._pointsTop = [];
+           this._pointsLeft = [];
 
            this.run();
         }
@@ -18,9 +18,9 @@
             this._start.getButton().addEventListener('click', () => {
                 this._start.getWrap().classList.add('hide');
 
-                this.addPoint(this.pointsLeft, parseInt(this._snake.getLastElementArray().style.left));
+                this.addPoint(this._pointsLeft, parseInt(this._snake.getLastElementArray().style.left));
             
-                this.addPoint(this.pointsTop, parseInt(this._snake.getLastElementArray().style.top));
+                this.addPoint(this._pointsTop, parseInt(this._snake.getLastElementArray().style.top));
 
                 this.id = setInterval(() => {
 
@@ -37,11 +37,11 @@
     
                         let pointTop = parseInt(this._snake.getLastElementArray().style.top);
 
-                        this.addPoint(this.pointsTop, pointTop);
+                        this.addPoint(this._pointsTop, pointTop);
 
-                        this.dir = 'left';
+                        this._dir = 'left';
 
-                        let flag = this.moveForLeft(this.pointsTop);
+                        let flag = this.moveForLeft(this._pointsTop);
     
                         this.id = setInterval(() => {
     
@@ -55,9 +55,9 @@
     
                         let pointLeft = parseInt(this._snake.getLastElementArray().style.left);
 
-                        this.addPoint(this.pointsLeft, pointLeft);
+                        this.addPoint(this._pointsLeft, pointLeft);
     
-                        let flag = this. moveForUp(this.pointsLeft);
+                        let flag = this.moveForUp(this._pointsLeft);
     
                         this.id = setInterval(() => {
     
@@ -71,11 +71,11 @@
     
                         let pointTop = parseInt(this._snake.getLastElementArray().style.top);
 
-                        this.addPoint(this.pointsTop, pointTop);
+                        this.addPoint(this._pointsTop, pointTop);
 
-                        this.dir = 'right';
+                        this._dir = 'right';
                         
-                        let flag = this.moveForRight(this.pointsTop, this.dir);
+                        let flag = this.moveForRight(this._pointsTop, this._dir);
     
                         this.id = setInterval(() => {
     
@@ -90,9 +90,9 @@
     
                         let pointLeft = parseInt(this._snake.getLastElementArray().style.left);
 
-                        this.addPoint(this.pointsLeft, pointLeft);
+                        this.addPoint(this._pointsLeft, pointLeft);
 
-                        let flag = this.moveForDown(this.pointsLeft);
+                        let flag = this.moveForDown(this._pointsLeft);
     
                         this.id = setInterval(() => {
     
@@ -154,13 +154,13 @@
     }
 
     class Forward {
-        constructor(elems, step) {
-            this.elems = elems;
-            this.step = step;
+        constructor(elems, plus) {
+            this._elems = elems;
+            this._plusForward = plus;
 
-            for (let i = this.elems.length - 1; i >= 0; i--) {
+            for (let i = this._elems.length - 1; i >= 0; i--) {
 
-                this.elems[i].style.left = parseInt(this.elems[i].style.left) + this.step + 'px';
+                this._elems[i].style.left = parseInt(this._elems[i].style.left) + this._plusForward + 'px';
 
             }
         }
@@ -168,20 +168,20 @@
 
     class Up {
         constructor(elems, pointLeft, minus, plus, flag) {
-            this.elems = elems;
-            this.pointLeft = pointLeft;
+            this._elems = elems;
+            this._pointLeft = pointLeft;
 
-            this.minus = minus;
-            this.plus = plus;
+            this._minusUp = minus;
+            this._plusUp = plus;
 
-            flag ? this.step = this.minus : this.step = this.plus;
+            flag ? this._stepUp = this._minusUp : this._stepUp = this._plusUp;
 
-            for (let i = this.elems.length - 1; i >= 0; i--) {
+            for (let i = this._elems.length - 1; i >= 0; i--) {
 
-                if (parseInt(this.elems[i].style.left) != this.pointLeft) {
-                    this.elems[i].style.left = parseInt(this.elems[i].style.left) + this.step + 'px';
+                if (parseInt(this._elems[i].style.left) != this._pointLeft) {
+                    this._elems[i].style.left = parseInt(this._elems[i].style.left) + this._stepUp + 'px';
                 } else {
-                    this.elems[i].style.top = parseInt(this.elems[i].style.top) + this.minus + 'px';
+                    this._elems[i].style.top = parseInt(this._elems[i].style.top) + this._minusUp + 'px';
                 }
             }
         }
@@ -189,20 +189,20 @@
 
     class Down {
         constructor(elems, pointLeft, minus, plus, flag) {
-            this.elems = elems;
-            this.pointLeft = pointLeft;
+            this._elems = elems;
+            this._pointLeft = pointLeft;
 
-            this.plus = plus;
-            this.minus = minus;
+            this._plusDown = plus;
+            this._minusDown = minus;
 
-            flag ? this.step = this.plus : this.step = this.minus;
+            flag ? this._stepDown = this._plusDown : this._stepDown = this._minusDown;
 
-            for (let i = this.elems.length - 1; i >= 0; i--) {
+            for (let i = this._elems.length - 1; i >= 0; i--) {
 
-                if (parseInt(this.elems[i].style.left) != this.pointLeft) {
-                    this.elems[i].style.left = parseInt(this.elems[i].style.left) + this.step + 'px';
+                if (parseInt(this._elems[i].style.left) != this._pointLeft) {
+                    this._elems[i].style.left = parseInt(this._elems[i].style.left) + this._stepDown + 'px';
                 } else {
-                    this.elems[i].style.top = parseInt(this.elems[i].style.top) + this.plus + 'px';
+                    this._elems[i].style.top = parseInt(this._elems[i].style.top) + this._plusDown + 'px';
                 }
             }
         }
@@ -210,20 +210,20 @@
 
     class Right {
         constructor(elems, pointTop, minus, plus, flag) {
-            this.elems = elems;
-            this.pointTop = pointTop;
+            this._elems = elems;
+            this._pointTop = pointTop;
 
-            this.plus = plus;
-            this.minus = minus;
+            this._plusRight = plus;
+            this._minusRight = minus;
 
-            flag ? this.step = this.plus : this.step = this.minus;
+            flag ? this._stepRight = this._plusRight : this._stepRight = this._minusRight;
 
-            for (let i = this.elems.length - 1; i >= 0; i--) {
+            for (let i = this._elems.length - 1; i >= 0; i--) {
 
-                if (parseInt(this.elems[i].style.top) != this.pointTop) {
-                    this.elems[i].style.top = parseInt(this.elems[i].style.top) + this.step + 'px';
+                if (parseInt(this._elems[i].style.top) != this._pointTop) {
+                    this._elems[i].style.top = parseInt(this._elems[i].style.top) + this._stepRight + 'px';
                 } else {
-                    this.elems[i].style.left = parseInt(this.elems[i].style.left) + this.plus + 'px';
+                    this._elems[i].style.left = parseInt(this._elems[i].style.left) + this._plusRight + 'px';
                 }
             }
         }
@@ -232,20 +232,20 @@
 
     class Left {
         constructor(elems, pointTop, minus, plus, flag) {
-            this.elems = elems;
-            this.pointTop = pointTop;
+            this._elems = elems;
+            this._pointTop = pointTop;
 
-            this.minus = minus;
-            this.plus = plus;
+            this._minusLeft = minus;
+            this._plusLeft = plus;
 
-            flag ? this.step = this.plus : this.step = this.minus;
+            flag ? this._stepLeft = this._plusLeft : this._stepLeft = this._minusLeft;
 
-            for (let i = this.elems.length - 1; i >= 0; i--) {
+            for (let i = this._elems.length - 1; i >= 0; i--) {
 
-                if (parseInt(this.elems[i].style.top) != this.pointTop) {
-                    this.elems[i].style.top = parseInt(this.elems[i].style.top) + this.step + 'px';
+                if (parseInt(this._elems[i].style.top) != this._pointTop) {
+                    this._elems[i].style.top = parseInt(this._elems[i].style.top) + this._stepLeft + 'px';
                 } else {
-                    this.elems[i].style.left = parseInt(this.elems[i].style.left) + this.minus + 'px';
+                    this._elems[i].style.left = parseInt(this._elems[i].style.left) + this._minusLeft + 'px';
                 }
             }
         }
@@ -253,53 +253,55 @@
 
     class Snake {
         constructor(quantity, parent) {
-            this.parent = document.querySelector(parent);
-            this.quantity = quantity;
-            this.squares = [];
+            this._parentSnake = document.querySelector(parent);
+            this._quantity = quantity;
+            this._squares = [];
 
             for (let i = 0, top = 20, left = 20; i < quantity; i++, left += 10) {
+
                 let div = document.createElement('div');
                     div.classList.add('square');
                     div.style.top = top + 'px';
                     div.style.left = left + 'px';
-                this.parent.appendChild(div);
-                this.squares.push(div);
+
+                this._parentSnake.appendChild(div);
+                this._squares.push(div);
             }
         }
 
         getSquares() {
-            return this.squares;
+            return this._squares;
         }
 
         getLastElementArray() {
-            return this.squares[this.squares.length - 1];
+            return this._squares[this._squares.length - 1];
         }
 
         addSquare() {
             let div = document.createElement('div');
                 div.classList.add('square');
-            this.parent.appendChild(div);
-            this.squares.push(div);
+            this._parentSnake.appendChild(div);
+            this._squares.push(div);
         }
 
     }
 
     class Start {
         constructor(parent) {
-            this.parent = document.querySelector(parent);
+            this._parentStart = document.querySelector(parent);
 
-            this._wrap = document.createElement('div');
-                this._wrap.classList.add('start__wrap');
-           this.parent.appendChild(this._wrap);
+            this._wrapStart = document.createElement('div');
+                this._wrapStart.classList.add('start__wrap');
+           this._parentStart.appendChild(this._wrapStart);
 
             this._button = document.createElement('button');
                 this._button.innerHTML = 'Start';
                 this._button.classList.add('start__button');
-            this._wrap.appendChild(this._button);
+            this._wrapStart.appendChild(this._button);
         }
 
         getWrap() {
-            return this._wrap;
+            return this._wrapStart;
         }
 
         getButton() {
