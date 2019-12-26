@@ -1,252 +1,104 @@
 (function () {
     class Game {
-        constructor() {
-           this._snake = new Snake(3, '.field');
-           this._start = new Start('.field');
+        constructor(field) {
+            this._field = document.querySelector(field);
+            this._snake = new Snake(7, '.field');
+            this._start = new Start('.field');
 
-           this._minus = -10;
-           this._plus = 10;
-           this._dir;
+            this._step = 10;
+            this._id;
+            this._delay = 250;
 
-           this._pointsTop = [];
-           this._pointsLeft = [];
+            this._elems = this._snake.getSquares();
+            this._coordinate = this._snake.getCoordinate(this._elems);
 
-           this.run();
+            // console.log(this.getWidthCss(this._field));
+
+            this.run();
         }
 
         run() {
             this._start.getButton().addEventListener('click', () => {
                 this._start.getWrap().classList.add('hide');
 
-                this.addPoint(this._pointsLeft, parseInt(this._snake.getLastElementArray().style.left));
-            
-                this.addPoint(this._pointsTop, parseInt(this._snake.getLastElementArray().style.top));
+                this._id = setInterval(() => {
+                    let left = parseInt(this._elems[this._elems.length - 1].style.left) + this._step + 'px';
+                    let top = parseInt(this._elems[this._elems.length - 1].style.top) + 'px';
 
-                this.id = setInterval(() => {
+                    this.checkOnCollisionWithBorder(this.getWidthCss(this._field), left, this._step, this._id);
 
-                    this._forward = new Forward(this._snake.getSquares(), this._plus);
+                    new Move(this._elems, this._coordinate, top, left);
 
-                }, 250);
+                }, this._delay);
 
                 document.documentElement.addEventListener('keydown', (event) => {
                     let code = event.keyCode;
-    
+                    
                     if (code == 37) {
+                        clearInterval(this._id);
     
-                        clearInterval(this.id);
-    
-                        let pointTop = parseInt(this._snake.getLastElementArray().style.top);
+                        this._id = setInterval(() => {
+                            let left = parseInt(this._elems[this._elems.length - 1].style.left) - this._step + 'px';
+                            let top = parseInt(this._elems[this._elems.length - 1].style.top) + 'px';
 
-                        this.addPoint(this._pointsTop, pointTop);
-
-                        this._dir = 'left';
-
-                        let flag = this.moveForLeft(this._pointsTop);
+                            // this.checkOnCollisionWithBorder('0px', left, -this._step, this._id);
     
-                        this.id = setInterval(() => {
+                            new Move(this._elems, this._coordinate, top, left);
     
-                            new Left(this._snake.getSquares(), pointTop, this._minus, this._plus, flag);
-    
-                        }, 250);
+                        }, this._delay);
     
                     } else if (code == 38) {
+                        clearInterval(this._id);
     
-                        clearInterval(this.id);
+                        this._id = setInterval(() => {
+                            let left = parseInt(this._elems[this._elems.length - 1].style.left) + 'px';
+                            let top = parseInt(this._elems[this._elems.length - 1].style.top) - this._step + 'px';
     
-                        let pointLeft = parseInt(this._snake.getLastElementArray().style.left);
-
-                        this.addPoint(this._pointsLeft, pointLeft);
+                            new Move(this._elems, this._coordinate, top, left);
     
-                        let flag = this.moveForUp(this._pointsLeft);
-    
-                        this.id = setInterval(() => {
-    
-                            new Up(this._snake.getSquares(), pointLeft, this._minus, this._plus, flag);
-    
-                        }, 250);
+                        }, this._delay);
     
                     } else if (code == 39) {
+                        clearInterval(this._id);
     
-                        clearInterval(this.id);
+                        this._id = setInterval(() => {
+                            let left = parseInt(this._elems[this._elems.length - 1].style.left) + this._step + 'px';
+                            let top = parseInt(this._elems[this._elems.length - 1].style.top) + 'px';
+
+                            this.checkOnCollisionWithBorder(this.getWidthCss(this._field), left, this._step, this._id);
     
-                        let pointTop = parseInt(this._snake.getLastElementArray().style.top);
-
-                        this.addPoint(this._pointsTop, pointTop);
-
-                        this._dir = 'right';
+                            new Move(this._elems, this._coordinate, top, left);
+    
+                        }, this._delay);
                         
-                        let flag = this.moveForRight(this._pointsTop, this._dir);
-    
-                        this.id = setInterval(() => {
-    
-                            new Right(this._snake.getSquares(), pointTop, this._minus, this._plus, flag);
-    
-                        }, 250);
-    
-    
                     } else if (code == 40) {
+                        clearInterval(this._id);
     
-                        clearInterval(this.id);
-    
-                        let pointLeft = parseInt(this._snake.getLastElementArray().style.left);
+                        this._id = setInterval(() => {
+                            let left = parseInt(this._elems[this._elems.length - 1].style.left) + 'px';
+                            let top = parseInt(this._elems[this._elems.length - 1].style.top) + this._step + 'px';
 
-                        this.addPoint(this._pointsLeft, pointLeft);
-
-                        let flag = this.moveForDown(this._pointsLeft);
+                            new Move(this._elems, this._coordinate, top, left);
     
-                        this.id = setInterval(() => {
-    
-                            new Down(this._snake.getSquares(), pointLeft, this._minus, this._plus, flag);
-    
-                        }, 250);
-    
+                        }, this._delay);
+                        
                     }
                 });
             });
-
         }
 
-        addPoint(arr, point) {
-            arr.push(point);
-
-            if (arr.length > 2) {
-                arr.shift();
-            }
+        getWidthCss(elem) {
+            return getComputedStyle(elem).width;
         }
 
-        moveForRight(arr, dir) {
-
-            if (arr[0] < arr[1] && dir == 'right') {
-                return true;
-            } else if (arr[0] > arr[1] && dir == 'right') {
-                return false;
-            } else if (arr[0] < arr[1] && dir == 'left') {
-                return false;
-            }
+        getHeightCss(elem) {
+            return getComputedStyle(elem).height;
         }
 
-        moveForLeft(arr) {
-
-            if (arr[0] < arr[1]) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-        moveForDown(arr) {
-            
-            if (arr[0] < arr[1] && arr.length > 1) {
-                return true;
-            } else if (arr[0] > arr[1] && arr.length > 1){
-                return false;
-            }
-        }
-
-        moveForUp(arr) {
-
-            if (arr[0] < arr[1] && arr.length > 1) {
-                return false;
-            } else if (arr[0] > arr[1] && arr.length > 1){
-                return true;
-            }
-        }
-    }
-
-    class Forward {
-        constructor(elems, plus) {
-            this._elems = elems;
-            this._plusForward = plus;
-
-            for (let i = this._elems.length - 1; i >= 0; i--) {
-
-                this._elems[i].style.left = parseInt(this._elems[i].style.left) + this._plusForward + 'px';
-
-            }
-        }
-    }
-
-    class Up {
-        constructor(elems, pointLeft, minus, plus, flag) {
-            this._elems = elems;
-            this._pointLeft = pointLeft;
-
-            this._minusUp = minus;
-            this._plusUp = plus;
-
-            flag ? this._stepUp = this._minusUp : this._stepUp = this._plusUp;
-
-            for (let i = this._elems.length - 1; i >= 0; i--) {
-
-                if (parseInt(this._elems[i].style.left) != this._pointLeft) {
-                    this._elems[i].style.left = parseInt(this._elems[i].style.left) + this._stepUp + 'px';
-                } else {
-                    this._elems[i].style.top = parseInt(this._elems[i].style.top) + this._minusUp + 'px';
-                }
-            }
-        }
-    }
-
-    class Down {
-        constructor(elems, pointLeft, minus, plus, flag) {
-            this._elems = elems;
-            this._pointLeft = pointLeft;
-
-            this._plusDown = plus;
-            this._minusDown = minus;
-
-            flag ? this._stepDown = this._plusDown : this._stepDown = this._minusDown;
-
-            for (let i = this._elems.length - 1; i >= 0; i--) {
-
-                if (parseInt(this._elems[i].style.left) != this._pointLeft) {
-                    this._elems[i].style.left = parseInt(this._elems[i].style.left) + this._stepDown + 'px';
-                } else {
-                    this._elems[i].style.top = parseInt(this._elems[i].style.top) + this._plusDown + 'px';
-                }
-            }
-        }
-    }
-
-    class Right {
-        constructor(elems, pointTop, minus, plus, flag) {
-            this._elems = elems;
-            this._pointTop = pointTop;
-
-            this._plusRight = plus;
-            this._minusRight = minus;
-
-            flag ? this._stepRight = this._plusRight : this._stepRight = this._minusRight;
-
-            for (let i = this._elems.length - 1; i >= 0; i--) {
-
-                if (parseInt(this._elems[i].style.top) != this._pointTop) {
-                    this._elems[i].style.top = parseInt(this._elems[i].style.top) + this._stepRight + 'px';
-                } else {
-                    this._elems[i].style.left = parseInt(this._elems[i].style.left) + this._plusRight + 'px';
-                }
-            }
-        }
-
-    }
-
-    class Left {
-        constructor(elems, pointTop, minus, plus, flag) {
-            this._elems = elems;
-            this._pointTop = pointTop;
-
-            this._minusLeft = minus;
-            this._plusLeft = plus;
-
-            flag ? this._stepLeft = this._plusLeft : this._stepLeft = this._minusLeft;
-
-            for (let i = this._elems.length - 1; i >= 0; i--) {
-
-                if (parseInt(this._elems[i].style.top) != this._pointTop) {
-                    this._elems[i].style.top = parseInt(this._elems[i].style.top) + this._stepLeft + 'px';
-                } else {
-                    this._elems[i].style.left = parseInt(this._elems[i].style.left) + this._minusLeft + 'px';
-                }
+        checkOnCollisionWithBorder(border, coordinate, step, id) {
+            if (parseInt(coordinate) > parseInt(border) - step) {
+                console.log(coordinate + ' ' + border);
+                clearInterval(id);
             }
         }
     }
@@ -273,8 +125,16 @@
             return this._squares;
         }
 
-        getLastElementArray() {
-            return this._squares[this._squares.length - 1];
+        getCoordinate(arr) {
+            let result = [];
+
+            for (let i = 0; i < arr.length; i++) {
+
+                result.push([arr[i].style.top, arr[i].style.left]);
+
+            }
+
+            return result;
         }
 
         addSquare() {
@@ -309,5 +169,25 @@
         }
     }
 
-    let game = new Game;
+    class Move {
+        constructor(elems, coordinate, top, left) {
+            this._elems = elems;
+            this._coordinate = coordinate;
+
+            this._top = top;
+            this._left = left;
+
+            this._coordinate.push([this._top, this._left]);
+            this._coordinate.shift();
+    
+            for (let i = 0; i < this._elems.length; i++) {
+    
+                this._elems[i].style.top = this._coordinate[i][0];
+                this._elems[i].style.left = this._coordinate[i][1];
+    
+            }
+        }
+    }
+
+    let game = new Game('.field');
 })();
