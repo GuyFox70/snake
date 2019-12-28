@@ -4,6 +4,7 @@
             this._field = document.querySelector(field);
             this._snake = new Snake(7, '.field');
             this._start = new Start('.field');
+            this._lose = new Lose(this._field);
 
             this._step = 10;
             this._id;
@@ -11,8 +12,6 @@
 
             this._elems = this._snake.getSquares();
             this._coordinate = this._snake.getCoordinate(this._elems);
-
-            // console.log(this.getWidthCss(this._field));
 
             this.run();
         }
@@ -25,7 +24,7 @@
                     let left = parseInt(this._elems[this._elems.length - 1].style.left) + this._step + 'px';
                     let top = parseInt(this._elems[this._elems.length - 1].style.top) + 'px';
 
-                    this.checkOnCollisionWithBorder(this.getWidthCss(this._field), left, this._step, this._id);
+                    this.checkOnCollisionWithBorderLeftAndDown(this.getWidthCss(this._field), left, this._id);
 
                     new Move(this._elems, this._coordinate, top, left);
 
@@ -41,7 +40,7 @@
                             let left = parseInt(this._elems[this._elems.length - 1].style.left) - this._step + 'px';
                             let top = parseInt(this._elems[this._elems.length - 1].style.top) + 'px';
 
-                            // this.checkOnCollisionWithBorder('0px', left, -this._step, this._id);
+                            this.checkOnCollisionWithBorderRightAndUp('0px', left, this._id);
     
                             new Move(this._elems, this._coordinate, top, left);
     
@@ -53,6 +52,8 @@
                         this._id = setInterval(() => {
                             let left = parseInt(this._elems[this._elems.length - 1].style.left) + 'px';
                             let top = parseInt(this._elems[this._elems.length - 1].style.top) - this._step + 'px';
+                            
+                            this.checkOnCollisionWithBorderRightAndUp('0px', top, this._id);
     
                             new Move(this._elems, this._coordinate, top, left);
     
@@ -65,7 +66,7 @@
                             let left = parseInt(this._elems[this._elems.length - 1].style.left) + this._step + 'px';
                             let top = parseInt(this._elems[this._elems.length - 1].style.top) + 'px';
 
-                            this.checkOnCollisionWithBorder(this.getWidthCss(this._field), left, this._step, this._id);
+                            this.checkOnCollisionWithBorderLeftAndDown(this.getWidthCss(this._field), left, this._id);
     
                             new Move(this._elems, this._coordinate, top, left);
     
@@ -78,12 +79,20 @@
                             let left = parseInt(this._elems[this._elems.length - 1].style.left) + 'px';
                             let top = parseInt(this._elems[this._elems.length - 1].style.top) + this._step + 'px';
 
+                            this.checkOnCollisionWithBorderLeftAndDown(this.getHeightCss(this._field), top, this._id);
+
                             new Move(this._elems, this._coordinate, top, left);
     
                         }, this._delay);
                         
                     }
                 });
+            });
+
+            this._lose.getButton().addEventListener('click', () => {
+                this._field.innerHTML = '';
+
+                new Game('.field');
             });
         }
 
@@ -95,10 +104,16 @@
             return getComputedStyle(elem).height;
         }
 
-        checkOnCollisionWithBorder(border, coordinate, step, id) {
-            if (parseInt(coordinate) > parseInt(border) - step) {
-                console.log(coordinate + ' ' + border);
+        checkOnCollisionWithBorderLeftAndDown(border, coordinate, id) {
+            if (parseInt(coordinate) > parseInt(border)) {
                 clearInterval(id);
+            }
+        }
+
+        checkOnCollisionWithBorderRightAndUp(border, coordinate, id) {
+            if (parseInt(coordinate) < parseInt(border)) {
+                clearInterval(id);
+                this._lose.showMessage();
             }
         }
     }
@@ -129,9 +144,7 @@
             let result = [];
 
             for (let i = 0; i < arr.length; i++) {
-
                 result.push([arr[i].style.top, arr[i].style.left]);
-
             }
 
             return result;
@@ -189,5 +202,36 @@
         }
     }
 
-    let game = new Game('.field');
+    class Lose {
+        constructor(parent) {
+
+            this._divWrap = document.createElement('div');
+                this._divWrap.classList.add('lose__wrap');
+            parent.appendChild(this._divWrap);
+
+            this._divMessage = document.createElement('div');
+                this._divMessage.classList.add('lose__message');
+            this._divWrap.appendChild(this._divMessage);
+
+            this._p = document.createElement('p');
+                this._p.innerHTML = 'Your lost!!!'
+                this._p.classList.add('lose__message__text');
+            this._divMessage.appendChild(this._p);
+
+            this._button = document.createElement('button');
+                this._button.innerHTML = 'Again'
+                this._button.classList.add('lose__message__button');
+            this._divMessage.appendChild(this._button);
+        }
+
+        showMessage() {
+            this._divWrap.classList.add('visible');
+        }
+
+        getButton() {
+            return  this._button;
+        }
+    }
+
+    new Game('.field');
 })();

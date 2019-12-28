@@ -1,2 +1,5 @@
 @import url("core.css");
+@import url("blocks/field.css");
+@import url("blocks/snake.css");
 @import url("blocks/start.css");
+@import url("blocks/lose.css");

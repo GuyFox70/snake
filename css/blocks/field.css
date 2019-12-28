@@ -1,0 +1,6 @@
+.field {
+    height: 97vh;
+    border: 1px solid black;
+    position: relative;
+    overflow: hidden;
+}
