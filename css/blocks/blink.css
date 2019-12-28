@@ -1,0 +1,18 @@
+.blink {
+    width: 7px;
+    height: 7px;
+    background: rgb(0,0,0);
+    border: 1px solid black;
+    border-radius: 50%;
+
+    position: absolute;
+}
+
+@keyframes opacity {
+    from {opacity: 1;}
+    to {opacity: 0;}
+}
+
+.blink {
+    animation: opacity .25s ease infinite alternate;
+}
