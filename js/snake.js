@@ -6,6 +6,7 @@
             this._top = 20;
             this._left = 20;
             this._size = ['7px', '7px'];
+            this._currentCode;
 
             this._field = document.querySelector(field);
             this._snake = new Snake(4, this._field, this._step, this._top, this._left, this._size);
@@ -13,8 +14,7 @@
             this._lose = new Lose(this._field);
 
             this._id;
-
-            this._blink = new Blink(this._field, this.getNum(this.getWidthCss(this._field)), this.getNum(this.getHeightCss(this._field)), this._step);
+            this._idTimeOut;
 
             this._elems = this._snake.getSquares();
             this._coordinate = this._snake.getCoordinate(this._elems);
@@ -26,11 +26,21 @@
             this._start.getButton().addEventListener('click', () => {
                 this._start.getWrap().classList.add('hide');
 
+                this._currentCode = 37;
+
+                this._idTimeOut = setTimeout(() => {
+                    this._blink = new Blink(this._field, this.getNum(this.getWidthCss(this._field)), this.getNum(this.getHeightCss(this._field)), this._step);
+                    
+                    clearTimeout(this._idTimeOut);
+                }, 2000);
+
                 this._id = setInterval(() => {
                     let left = parseInt(this._elems[this._elems.length - 1].style.left) + this._step + 'px';
                     let top = parseInt(this._elems[this._elems.length - 1].style.top) + 'px';
 
-                    this.catch(this._blink.getTopLeft(), [top, left]);
+                    this._idTimeOut = setTimeout(() => {
+                        this.catch(this._blink.getTopLeft(), [top, left]);
+                    }, 2000);
 
                     this.checkOnCollisionWithBorderLeftAndDown(this.getWidthCss(this._field), left, this._id);
 
@@ -41,8 +51,11 @@
                 document.documentElement.addEventListener('keydown', (event) => {
                     let code = event.keyCode;
                     
-                    if (code == 37) {
+                    if (code == 37 && this._currentCode != 37 && this._currentCode != 39) {
+
                         clearInterval(this._id);
+
+                        this._currentCode = code;
     
                         this._id = setInterval(() => {
                             let left = parseInt(this._elems[this._elems.length - 1].style.left) - this._step + 'px';
@@ -56,8 +69,11 @@
     
                         }, this._delay);
     
-                    } else if (code == 38) {
+                    } else if (code == 38 && this._currentCode != 38 && this._currentCode != 40) {
+
                         clearInterval(this._id);
+
+                        this._currentCode = code;
     
                         this._id = setInterval(() => {
                             let left = parseInt(this._elems[this._elems.length - 1].style.left) + 'px';
@@ -71,8 +87,11 @@
     
                         }, this._delay);
     
-                    } else if (code == 39) {
+                    } else if (code == 39 && this._currentCode != 39 && this._currentCode != 37) {
+
                         clearInterval(this._id);
+
+                        this._currentCode = code;
     
                         this._id = setInterval(() => {
                             let left = parseInt(this._elems[this._elems.length - 1].style.left) + this._step + 'px';
@@ -86,8 +105,11 @@
     
                         }, this._delay);
                         
-                    } else if (code == 40) {
+                    } else if (code == 40 && this._currentCode != 40 && this._currentCode != 38) {
+
                         clearInterval(this._id);
+
+                        this._currentCode = code;
     
                         this._id = setInterval(() => {
                             let left = parseInt(this._elems[this._elems.length - 1].style.left) + 'px';
@@ -123,6 +145,7 @@
         checkOnCollisionWithBorderLeftAndDown(border, coordinate, id) {
             if (parseInt(coordinate) > parseInt(border)) {
                 clearInterval(id);
+                this._lose.showMessage();
             }
         }
 
@@ -135,13 +158,16 @@
 
         catch(arr1, arr2) {
             if (arr1[0] == arr2[0] && arr1[1] == arr2[1]) {
+
                 this._snake.addSquare(this._field, this._coordinate);
                 this._coordinate = this._snake.getCoordinate(this._elems);
                 this._blink.removeElement();
                
-                // setTimeout(() => {
-                //     clearInterval(this._id);
-                // }, 500);
+                this._idTimeOut = setTimeout(() => {
+                    this._blink = new Blink(this._field, this.getNum(this.getWidthCss(this._field)), this.getNum(this.getHeightCss(this._field)), this._step);
+                    
+                    clearTimeout(this._idTimeOut);
+                }, 2000);
             }
         } 
 
