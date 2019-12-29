@@ -1,14 +1,18 @@
 (function () {
     class Game {
         constructor(field) {
+            this._step = 10;
+            this._delay = 250;
+            this._top = 20;
+            this._left = 20;
+            this._size = ['7px', '7px'];
+
             this._field = document.querySelector(field);
-            this._snake = new Snake(7, '.field');
+            this._snake = new Snake(4, this._field, this._step, this._top, this._left, this._size);
             this._start = new Start('.field');
             this._lose = new Lose(this._field);
 
-            this._step = 10;
             this._id;
-            this._delay = 250;
 
             this._blink = new Blink(this._field, this.getNum(this.getWidthCss(this._field)), this.getNum(this.getHeightCss(this._field)), this._step);
 
@@ -16,7 +20,6 @@
             this._coordinate = this._snake.getCoordinate(this._elems);
 
             this.run();
-            console.log(this._blink.getTopLeft());
         }
 
         run() {
@@ -27,7 +30,7 @@
                     let left = parseInt(this._elems[this._elems.length - 1].style.left) + this._step + 'px';
                     let top = parseInt(this._elems[this._elems.length - 1].style.top) + 'px';
 
-                    this.catch(this._blink.getTopLeft(), left);
+                    this.catch(this._blink.getTopLeft(), [top, left]);
 
                     this.checkOnCollisionWithBorderLeftAndDown(this.getWidthCss(this._field), left, this._id);
 
@@ -45,7 +48,7 @@
                             let left = parseInt(this._elems[this._elems.length - 1].style.left) - this._step + 'px';
                             let top = parseInt(this._elems[this._elems.length - 1].style.top) + 'px';
 
-                            this.catch(this._blink.getTopLeft(), left);
+                            this.catch(this._blink.getTopLeft(), [top, left]);
 
                             this.checkOnCollisionWithBorderRightAndUp('0px', left, this._id);
     
@@ -60,7 +63,7 @@
                             let left = parseInt(this._elems[this._elems.length - 1].style.left) + 'px';
                             let top = parseInt(this._elems[this._elems.length - 1].style.top) - this._step + 'px';
 
-                            this.catch(this._blink.getTopLeft(), top);
+                            this.catch(this._blink.getTopLeft(), [top, left]);
                             
                             this.checkOnCollisionWithBorderRightAndUp('0px', top, this._id);
     
@@ -75,7 +78,7 @@
                             let left = parseInt(this._elems[this._elems.length - 1].style.left) + this._step + 'px';
                             let top = parseInt(this._elems[this._elems.length - 1].style.top) + 'px';
 
-                            this.catch(this._blink.getTopLeft(), left);
+                            this.catch(this._blink.getTopLeft(), [top, left]);
 
                             this.checkOnCollisionWithBorderLeftAndDown(this.getWidthCss(this._field), left, this._id);
     
@@ -90,7 +93,7 @@
                             let left = parseInt(this._elems[this._elems.length - 1].style.left) + 'px';
                             let top = parseInt(this._elems[this._elems.length - 1].style.top) + this._step + 'px';
 
-                            this.catch(this._blink.getTopLeft(), top);
+                            this.catch(this._blink.getTopLeft(), [top, left]);
 
                             this.checkOnCollisionWithBorderLeftAndDown(this.getHeightCss(this._field), top, this._id);
 
@@ -130,11 +133,15 @@
             }
         }
 
-        catch(arr, coordinate) {
-            for (let elem of arr) {
-                if (elem == coordinate) {
-                    console.log('yes');
-                }
+        catch(arr1, arr2) {
+            if (arr1[0] == arr2[0] && arr1[1] == arr2[1]) {
+                this._snake.addSquare(this._field, this._coordinate);
+                this._coordinate = this._snake.getCoordinate(this._elems);
+                this._blink.removeElement();
+               
+                // setTimeout(() => {
+                //     clearInterval(this._id);
+                // }, 500);
             }
         } 
 
@@ -144,19 +151,22 @@
     }
 
     class Snake {
-        constructor(quantity, parent) {
-            this._parentSnake = document.querySelector(parent);
+        constructor(quantity, parent, step, top, left, size) {
             this._quantity = quantity;
             this._squares = [];
 
-            for (let i = 0, top = 20, left = 20; i < quantity; i++, left += 10) {
+            for (let i = 0, t = top, l = left; i < quantity; i++, l += step) {
 
                 let div = document.createElement('div');
                     div.classList.add('square');
-                    div.style.top = top + 'px';
-                    div.style.left = left + 'px';
 
-                this._parentSnake.appendChild(div);
+                    div.style.width = size[0];
+                    div.style.height = size[1];
+
+                    div.style.top = t + 'px';
+                    div.style.left = l + 'px';
+
+                parent.appendChild(div);
                 this._squares.push(div);
             }
         }
@@ -175,10 +185,12 @@
             return result;
         }
 
-        addSquare() {
+        addSquare(parent, arr) {
             let div = document.createElement('div');
                 div.classList.add('square');
-            this._parentSnake.appendChild(div);
+                div.style.top = arr[3][0];
+                div.style.left = arr[3][1];
+            parent.appendChild(div);
             this._squares.push(div);
         }
 
@@ -259,11 +271,13 @@
     }
     class Blink {
         constructor(parent, width, height, step) {
+            this._parent = parent;
+
             this._div = document.createElement('div');
             this._div.classList.add('blink');
-                this._div.style.top = this.getRandomInt(10, height - step) + 'px';
-                this._div.style.left = this.getRandomInt(10, width - step) + 'px';
-            parent.appendChild(this._div);
+                this._div.style.top = this.getRandomPoints(10, height - step);
+                this._div.style.left = this.getRandomPoints(10, width - step);
+            this._parent.appendChild(this._div);
         }
 
         getRandomInt(min, max) {
@@ -272,6 +286,21 @@
 
         getTopLeft() {
             return [this._div.style.top, this._div.style.left];
+        }
+
+        getRandomPoints(min, max) {
+            let arr = this.getRandomInt(min, max).toFixed().split('');
+			let newarr = arr.splice(-1, 1, '0');
+            
+            return arr.join('') + 'px';
+        }
+
+		getRandomInt(min, max) {
+	        return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+        
+        removeElement() {
+            this._parent.removeChild(this._div);
         }
     }
 
