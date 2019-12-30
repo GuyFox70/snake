@@ -12,8 +12,9 @@
             this._snake = new Snake(4, this._field, this._step, this._top, this._left, this._size);
             this._start = new Start('.field');
             this._lose = new Lose(this._field);
+            this._blink = new Blink(this._field);
 
-            this._id;
+            this._idInterval;
             this._idTimeOut;
 
             this._elems = this._snake.getSquares();
@@ -29,18 +30,18 @@
                 this._currentCode = 37;
 
                 this._idTimeOut = setTimeout(() => {
-                    this._blink = new Blink(this._field, this.getNum(this.getWidthCss(this._field)), this.getNum(this.getHeightCss(this._field)), this._step);
+                    this._blink.showDIV(this.getNum(this.getWidthCss(this._field)),this.getNum(this.getHeightCss(this._field)), this._step);
                     
                     clearTimeout(this._idTimeOut);
                 }, 2000);
 
-                this._id = setInterval(() => {
+                this._idInterval = setInterval(() => {
                     let left = parseInt(this._elems[this._elems.length - 1].style.left) + this._step + 'px';
                     let top = parseInt(this._elems[this._elems.length - 1].style.top) + 'px';
 
-                    this._idTimeOut = setTimeout(() => {
-                        this.catch(this._blink.getTopLeft(), [top, left]);
-                    }, 2000);
+                    this.checkCrossSnake(top, left);
+
+                    this.catch(this._blink.getTopLeft(), [top, left]);
 
                     this.checkOnCollisionWithBorderLeftAndDown(this.getWidthCss(this._field), left, this._id);
 
@@ -53,17 +54,19 @@
                     
                     if (code == 37 && this._currentCode != 37 && this._currentCode != 39) {
 
-                        clearInterval(this._id);
+                        clearInterval(this._idInterval);
 
                         this._currentCode = code;
     
-                        this._id = setInterval(() => {
+                        this._idInterval = setInterval(() => {
                             let left = parseInt(this._elems[this._elems.length - 1].style.left) - this._step + 'px';
                             let top = parseInt(this._elems[this._elems.length - 1].style.top) + 'px';
 
                             this.catch(this._blink.getTopLeft(), [top, left]);
 
                             this.checkOnCollisionWithBorderRightAndUp('0px', left, this._id);
+
+                            this.checkCrossSnake(top, left);
     
                             new Move(this._elems, this._coordinate, top, left);
     
@@ -71,17 +74,19 @@
     
                     } else if (code == 38 && this._currentCode != 38 && this._currentCode != 40) {
 
-                        clearInterval(this._id);
+                        clearInterval(this._idInterval);
 
                         this._currentCode = code;
     
-                        this._id = setInterval(() => {
+                        this._idInterval = setInterval(() => {
                             let left = parseInt(this._elems[this._elems.length - 1].style.left) + 'px';
                             let top = parseInt(this._elems[this._elems.length - 1].style.top) - this._step + 'px';
 
                             this.catch(this._blink.getTopLeft(), [top, left]);
                             
                             this.checkOnCollisionWithBorderRightAndUp('0px', top, this._id);
+
+                            this.checkCrossSnake(top, left);
     
                             new Move(this._elems, this._coordinate, top, left);
     
@@ -89,17 +94,19 @@
     
                     } else if (code == 39 && this._currentCode != 39 && this._currentCode != 37) {
 
-                        clearInterval(this._id);
+                        clearInterval(this._idInterval);
 
                         this._currentCode = code;
     
-                        this._id = setInterval(() => {
+                        this._idInterval = setInterval(() => {
                             let left = parseInt(this._elems[this._elems.length - 1].style.left) + this._step + 'px';
                             let top = parseInt(this._elems[this._elems.length - 1].style.top) + 'px';
 
                             this.catch(this._blink.getTopLeft(), [top, left]);
 
                             this.checkOnCollisionWithBorderLeftAndDown(this.getWidthCss(this._field), left, this._id);
+
+                            this.checkCrossSnake(top, left);
     
                             new Move(this._elems, this._coordinate, top, left);
     
@@ -107,17 +114,19 @@
                         
                     } else if (code == 40 && this._currentCode != 40 && this._currentCode != 38) {
 
-                        clearInterval(this._id);
+                        clearInterval(this._idInterval);
 
                         this._currentCode = code;
     
-                        this._id = setInterval(() => {
+                        this._idInterval = setInterval(() => {
                             let left = parseInt(this._elems[this._elems.length - 1].style.left) + 'px';
                             let top = parseInt(this._elems[this._elems.length - 1].style.top) + this._step + 'px';
 
                             this.catch(this._blink.getTopLeft(), [top, left]);
 
                             this.checkOnCollisionWithBorderLeftAndDown(this.getHeightCss(this._field), top, this._id);
+
+                            this.checkCrossSnake(top, left);
 
                             new Move(this._elems, this._coordinate, top, left);
     
@@ -144,14 +153,16 @@
 
         checkOnCollisionWithBorderLeftAndDown(border, coordinate, id) {
             if (parseInt(coordinate) > parseInt(border)) {
-                clearInterval(id);
+                clearInterval(this._idInterval);
+                this._blink.hideElement();
                 this._lose.showMessage();
             }
         }
 
         checkOnCollisionWithBorderRightAndUp(border, coordinate, id) {
             if (parseInt(coordinate) < parseInt(border)) {
-                clearInterval(id);
+                clearInterval(this._idInterval);
+                this._blink.hideElement();
                 this._lose.showMessage();
             }
         }
@@ -161,10 +172,10 @@
 
                 this._snake.addSquare(this._field, this._coordinate);
                 this._coordinate = this._snake.getCoordinate(this._elems);
-                this._blink.removeElement();
+                this._blink.hideElement();
                
                 this._idTimeOut = setTimeout(() => {
-                    this._blink = new Blink(this._field, this.getNum(this.getWidthCss(this._field)), this.getNum(this.getHeightCss(this._field)), this._step);
+                    this._blink.showDIV(this.getNum(this.getWidthCss(this._field)),this.getNum(this.getHeightCss(this._field)), this._step);
                     
                     clearTimeout(this._idTimeOut);
                 }, 2000);
@@ -173,6 +184,16 @@
 
         getNum(str) {
             return parseInt(str);
+        }
+
+        checkCrossSnake(top, left) {
+            for (let elem of this._coordinate) {
+                if (top == elem[0] && left == elem[1]) {
+                    clearInterval(this._idInterval);
+                    this._blink.hideElement();
+                    this._lose.showMessage();
+                }
+            }
         }
     }
 
@@ -214,8 +235,8 @@
         addSquare(parent, arr) {
             let div = document.createElement('div');
                 div.classList.add('square');
-                div.style.top = arr[3][0];
-                div.style.left = arr[3][1];
+                div.style.top = arr[arr.length - 1][0];
+                div.style.left = arr[arr.length - 1][1];
             parent.appendChild(div);
             this._squares.push(div);
         }
@@ -296,13 +317,11 @@
         }
     }
     class Blink {
-        constructor(parent, width, height, step) {
+        constructor(parent) {
             this._parent = parent;
 
             this._div = document.createElement('div');
             this._div.classList.add('blink');
-                this._div.style.top = this.getRandomPoints(10, height - step);
-                this._div.style.left = this.getRandomPoints(10, width - step);
             this._parent.appendChild(this._div);
         }
 
@@ -325,8 +344,14 @@
 	        return Math.floor(Math.random() * (max - min + 1)) + min;
         }
         
-        removeElement() {
-            this._parent.removeChild(this._div);
+        hideElement() {
+            this._div.classList.remove('visible');
+        }
+
+        showDIV(width, height, step) {
+            this._div.style.top = this.getRandomPoints(10, height - step);
+            this._div.style.left = this.getRandomPoints(10, width - step);
+            this._div.classList.add('visible');
         }
     }
 

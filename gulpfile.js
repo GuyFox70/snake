@@ -1,17 +1,13 @@
 const gulp = require('gulp');
-
+//css
 const concatCss = require('gulp-concat-css');
 const autoprefixer = require('gulp-autoprefixer');
 const cleanCSS = require('gulp-clean-css');
-
-const uglify = require('gulp-uglify');
-// const concatJs = require('gulp-concat');
-// const uglifyes = require('uglify-es');
-// const composer = require('gulp-uglify/composer');
-// const uglify = composer(uglifyes, console);
-// const del = require('del');
+//js
+// const uglify = require('gulp-uglify');
 
 // browser-sync start --server --files "*.*"
+// browser-sync start --proxy "myproject" --files "*.css, *.html, *.php, *.js"
 
 const cssFile = [
     './src/css/field.css',
@@ -51,21 +47,9 @@ function scripts() {
     .pipe(gulp.dest('./build/js'))
 }
 
-// gulp.task('compress', function () {
-//     return gulp.src(jsFile)
-//     .pipe(uglify())
-//     .pipe(gulp.dest('./build/js'))
-// });
-
-// function clean() {
-//     return del(['build/*'])
-// }
-
 gulp.task('styles',styles);
 
 gulp.task('scripts', scripts);
-
-// gulp.task('compress',compress);
 
 // gulp.task('del', clean);
 
