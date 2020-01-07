@@ -7,6 +7,8 @@
             this._left = 20;
             this._size = ['7px', '7px'];
             this._currentCode;
+            this._counter = 0;
+            this._acceleration = 20;
 
             this._field = document.querySelector(field);
             this._snake = new Snake(4, this._field, this._step, this._top, this._left, this._size);
@@ -57,7 +59,7 @@
                         clearInterval(this._idInterval);
 
                         this._currentCode = code;
-    
+                        
                         this._idInterval = setInterval(() => {
                             let left = parseInt(this._elems[this._elems.length - 1].style.left) - this._step + 'px';
                             let top = parseInt(this._elems[this._elems.length - 1].style.top) + 'px';
@@ -179,6 +181,9 @@
                     
                     clearTimeout(this._idTimeOut);
                 }, 2000);
+
+                this._counter++;
+                this.reduceDelay();
             }
         } 
 
@@ -194,6 +199,11 @@
                     this._lose.showMessage();
                 }
             }
+        }
+
+        reduceDelay() {
+            if (this._counter % 10 == 0) this._delay -= this._acceleration;
+            console.log(this._delay);
         }
     }
 
@@ -239,8 +249,9 @@
                 div.style.left = arr[arr.length - 1][1];
             parent.appendChild(div);
             this._squares.push(div);
-        }
 
+            this._counter++;
+        }
     }
 
     class Start {

@@ -1,56 +1,30 @@
-const gulp = require('gulp');
-//css
-const concatCss = require('gulp-concat-css');
-const autoprefixer = require('gulp-autoprefixer');
-const cleanCSS = require('gulp-clean-css');
-//js
-// const uglify = require('gulp-uglify');
+'user strict'
 
-// browser-sync start --server --files "*.*"
-// browser-sync start --proxy "myproject" --files "*.css, *.html, *.php, *.js"
+global.$ = {
+    gulp: require('gulp'),
+    concatCss: require('gulp-concat-css'),
+    autoprefixer: require('gulp-autoprefixer'),
+    cleanCSS: require('gulp-clean-css'),
+    ttf2woff2: require('gulp-ttf2woff2'),
+    notify: require('gulp-notify'),
+    sourcemaps: require('gulp-sourcemaps'),
+    imagemin: require('gulp-imagemin'),
+    imageminJpg: require('imagemin-jpeg-recompress'),
+    imageminPng: require('imagemin-optipng'),
+    terser: require('gulp-terser'),
+    browserSync: require('browser-sync').create(),
+    clean: require('gulp-clean'),
 
-const cssFile = [
-    './src/css/field.css',
-    './src/css/snake.css',
-    './src/css/start.css',
-    './src/css/blink.css',
-    './src/css/lose.css'
-];
+    path: {
+        tasks: require('./gulp/config/tasks.js')
+    }
+};
 
-const jsFile = [
-    './src/js/snake.js'
-];
+$.path.tasks.forEach(taskPath => {
+    require(taskPath)();
+});
 
-function styles() {
-    return gulp.src(cssFile)
-
-    .pipe(concatCss('style.css'))
-    .pipe(autoprefixer({
-        cascade: false
-    }))
-    .pipe(cleanCSS({
-        level: 2
-    }))
-
-    .pipe(gulp.dest('./build/css'))
-}
-
-function scripts() {
-    return gulp.src(jsFile)
-
-    // .pipe(concatJs('script.js'))
-
-    // .pipe(uglify(
-    //     {mangle: {toplevel: true}}
-    // ))
-
-    .pipe(gulp.dest('./build/js'))
-}
-
-gulp.task('styles',styles);
-
-gulp.task('scripts', scripts);
-
-// gulp.task('del', clean);
-
-gulp.task('build', gulp.series(gulp.parallel(styles,scripts)));
+$.gulp.task('default', $.gulp.series(
+    $.gulp.parallel('html','styles','scripts'),
+    $.gulp.parallel('watch','serve')
+));
